@@ -13,8 +13,6 @@ class YahooFinanceProvider:
         
     def fetch_recent_news(self):    
         
-        
-        
         # Make a request to fetch the page content
         response = requests.get(self.latest_news_url)
         
@@ -26,6 +24,10 @@ class YahooFinanceProvider:
         if response.status_code == 200:
             # Find the news section using the ID provided in your example
             news_section = soup.find('div', id='mrt-node-Fin-Stream')
+            
+            news_section_text = news_section.get_text(separator='\n', strip=True)
+            
+            print("News section text: ", news_section_text)
 
             # Check if news_section is found
             if news_section:
@@ -46,7 +48,7 @@ class YahooFinanceProvider:
                         if headline_link:
                             headline_text = headline_link.get_text(strip=True)
                             article_url = headline_link['href']
-                            article_text = self.get_article_text(article_url)
+                            article_text = self.extract_article_text(article_url)
                             if article_url.startswith('/'):
                                 article_url = url + article_url  # Add base URL if needed
 
@@ -54,7 +56,7 @@ class YahooFinanceProvider:
                             image_src = image['src'] if image else "No image available"
 
                             # Print the results
-                            print(f"Headline: {headline_text}\nLink: {article_url}\nArticle text: {article_text}")
+                            print(f"Headline: {headline_text}\nLink: {article_url}\nArticle text: {article_text[:50]}")
                     print("Total items: ", len(all_items))
                 else:
                     print("News list not found.")
@@ -66,24 +68,55 @@ class YahooFinanceProvider:
                     
     # Function to get the article text from a given URL
     def get_article_text(self, article_url):
+        print("Running get_article_text")
         # Send a request to fetch the article content
         article_response = requests.get(article_url)
         
         # Check if the request was successful
         if article_response.status_code == 200:
             article_soup = BeautifulSoup(article_response.text, 'html.parser')
-            # Find the article body
-           # Find the specific <div> by class
-            target_div = article_soup.find('div', class_='body-wrap yf-i23rhs')
+            
+            # Find the main article content
+            article_content = article_soup.find('div', {'data-component': 'article-body'})
+            print("\nArticle content: ", article_content)
 
-            if target_div:
-                # Extract text content from the found <div>
-                div_text = target_div.get_text(separator='\n', strip=True)
-                return div_text
+            if article_content:
+                # Extract all paragraph texts
+                paragraphs = article_content.find_all('p')
+                article_text = '\n\n'.join([p.get_text(strip=True) for p in paragraphs])
+                return article_text
             else:
-                return "No target <div> found."
+                return "No article content found."
         else:
-            return f"Failed to retrieve article: {article_response.status_code}" 
+            return f"Failed to retrieve article: {article_response.status_code}"
+        
+        
+        
+    def extract_article_text(self, url):
+        """
+        Fetches and extracts the text content from the provided article URL.
+        
+        :param url: The URL of the article to extract text from.
+        :return: The extracted text content of the article.
+        """
+        try:
+            # Fetch the webpage content
+            response = requests.get(url)
+            response.raise_for_status()  # Raise exception for HTTP errors
+
+            # Parse the webpage content with BeautifulSoup
+            soup = BeautifulSoup(response.content, 'html.parser')
+
+            # Extract text from <p> tags (usually article text is inside <p> tags)
+            paragraphs = soup.find_all('p')
+
+            # Combine all text into one string, stripping any extra whitespaces
+            article_text = '\n'.join([para.get_text(strip=True) for para in paragraphs])
+
+            return article_text
+
+        except requests.exceptions.RequestException as e:
+            return f"An error occurred while fetching the article: {e}"
             
 provider = YahooFinanceProvider()
 provider.fetch_recent_news()
