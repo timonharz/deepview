@@ -1,0 +1,8 @@
+# Requirements
+beautifulsoup4
+requests
+yfinance
+pytorch
+numpy
+tensorflow
+selenium
