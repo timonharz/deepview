@@ -57,6 +57,8 @@ class YahooFinanceProvider:
 
                             # Print the results
                             print(f"Headline: {headline_text}\nLink: {article_url}\nArticle text: {article_text[:50]}")
+                            
+                            
                     print("Total items: ", len(all_items))
                 else:
                     print("News list not found.")
@@ -120,3 +122,4 @@ class YahooFinanceProvider:
             
 provider = YahooFinanceProvider()
 provider.fetch_recent_news()
+print("Yahoo Data Provider: Done fetching news.")
