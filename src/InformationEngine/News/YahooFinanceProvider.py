@@ -122,4 +122,3 @@ class YahooFinanceProvider:
             
 provider = YahooFinanceProvider()
 provider.fetch_recent_news()
-print("Yahoo Data Provider: Done fetching news.")
