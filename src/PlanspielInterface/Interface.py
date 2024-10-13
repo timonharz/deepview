@@ -49,6 +49,11 @@ class PlanspielInterface:
         except Exception as e:
             print("Error: ", e)
 
+    def navigateDepot(self):
+        driver.get("https://trading.planspiel-boerse.de/web/account/depot/portfolio")
+        driver.implicitly_wait(5)
+        
+        
     def readCapital(self):
         try: 
             self.navigateDepot()
@@ -103,10 +108,11 @@ class PlanspielInterface:
     
 interface = PlanspielInterface(username="timon.h", password="Golfen_09")
 interface.login()
+interface.navigateDepot()
+time.sleep(100)
 interface.readCapital()
 interface.readHoldedStocks()
 interface.navigateHome()
-#schedule.every(1).minutes.do(readCapital)
 
 #while True:
  #   schedule.run_pending()
