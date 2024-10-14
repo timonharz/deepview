@@ -65,6 +65,8 @@ class PlanspielInterface:
             
             for element in elements:
                 print("Element: ", element.text)
+                
+            #Todo: Find a better way to get the total capital
             totalCapital = elements[2].text
             print(f'Total Capital: {totalCapital}')
             print(type(totalCapital))
